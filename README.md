@@ -21,7 +21,5 @@ Developed a deep learning model to detect emotions based on typing behavior, lev
 ---
 
 ## **Model architecture**
-
-
 ```markdown
 ![Model Architecture](images/model_architecture.png)
