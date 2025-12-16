@@ -22,3 +22,13 @@ Developed a deep learning model to detect emotions based on typing behavior, lev
 
 ## **Model architecture**
 ![Model Architecture](images/model_architecture.png)
+
+- **Input:** Consecutive sequences of feature vectors
+- **Positional Encoding:** Gaussian positional encoding applied to inputs
+- **Transformer Encoder:** Incorporates dual-attention mechanism
+  - **Temporal Attention Branch:** Captures timing dependencies
+  - **Channel Attention Branch:** Captures feature/channel dependencies
+- **Add & Normalize:** Outputs of both branches are summed and normalized
+- **CNN Block:** Processes combined representation
+- **Add & Normalize:** Another normalization after CNN
+- **Feed-Forward Network:** Produces final emotion classification output
