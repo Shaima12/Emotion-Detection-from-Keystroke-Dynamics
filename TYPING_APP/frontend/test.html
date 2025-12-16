@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Typing Data Collector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 50%, #f0fdfa 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .header-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 4rem;
+            height: 4rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            font-size: 1.25rem;
+            color: #6b7280;
+            max-width: 32rem;
+            margin: 0 auto;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .typing-section {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            color: #10b981;
+        }
+
+        .target-text {
+            background: #ecfdf5;
+            border: 1px solid #d1fae5;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .target-text h3 {
+            color: #065f46;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .target-text p {
+            color: #374151;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .typing-area {
+            margin-bottom: 1.5rem;
+        }
+
+        .typing-area label {
+            display: block;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.75rem;
+        }
+
+        #typingArea {
+            width: 100%;
+            height: 10rem;
+            padding: 1rem;
+            font-size: 1.125rem;
+            border: 2px solid #d1fae5;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(4px);
+            resize: none;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        #typingArea:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.25);
+        }
+
+        #typingArea::placeholder {
+            color: #9ca3af;
+        }
+
+        #saveButton {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            font-weight: 600;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+        }
+
+        #saveButton:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: scale(1.02);
+            box-shadow: 0 15px 35px -5px rgba(16, 185, 129, 0.5);
+        }
+
+        #saveButton:active {
+            transform: scale(0.98);
+        }
+
+        .results-section {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            position: sticky;
+            top: 2rem;
+        }
+
+        #status {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border-radius: 1rem;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .status-ready {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+        .status-processing {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .status-success {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #d1fae5;
+        }
+
+        .status-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            padding: 1rem;
+            border-radius: 1rem;
+            border: 1px solid;
+        }
+
+        .metric-card.emerald {
+            background: #ecfdf5;
+            border-color: #d1fae5;
+        }
+
+        .metric-card.green {
+            background: #f0fdf4;
+            border-color: #dcfce7;
+        }
+
+        .metric-card.teal {
+            background: #f0fdfa;
+            border-color: #ccfbf1;
+        }
+
+        .metric-header {
+            display: flex;
+            align-items: center;
+            justify-content: between;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .emerald .metric-label {
+            color: #065f46;
+        }
+
+        .green .metric-label {
+            color: #166534;
+        }
+
+        .teal .metric-label {
+            color: #134e4a;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .emerald .metric-value {
+            color: #047857;
+        }
+
+        .green .metric-value {
+            color: #15803d;
+        }
+
+        .teal .metric-value {
+            color: #0f766e;
+        }
+
+        .data-preview {
+            margin-top: 2rem;
+        }
+
+        .data-preview h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        #dataPreview {
+            background: #f9fafb;
+            border-radius: 1rem;
+            padding: 1rem;
+            max-height: 10rem;
+            overflow-y: auto;
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+
+        #dataPreview::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #dataPreview::-webkit-scrollbar-track {
+            background: #f3f4f6;
+            border-radius: 3px;
+        }
+
+        #dataPreview::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 3px;
+        }
+
+        #dataPreview::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .keyboard-icon {
+            width: 2rem;
+            height: 2rem;
+            fill: white;
+        }
+
+        .save-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-icon">
+                <svg class="keyboard-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                    <path d="m6 8 2 2-2 2"/>
+                    <path d="m12 8 2 2-2 2"/>
+                    <path d="M8 18h8"/>
+                </svg>
+            </div>
+            <h1>Typing Behavior Analysis</h1>
+            <p>Advanced keystroke dynamics research tool for behavioral pattern analysis</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Main Typing Area -->
+            <div class="typing-section">
+                <div class="section-header">
+                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                    <h2>Typing Test</h2>
+                </div>
+
+
+                <!-- Typing Area -->
+                <div class="typing-area">
+                    <label for="typingArea">Start typing here:</label>
+                    <textarea id="typingArea" placeholder="Start typing the text above..."></textarea>
+                </div>
+
+                <!-- Save Button -->
+                <button id="saveButton">
+                    <svg class="save-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
+                    </svg>
+                    Save Typing Data
+                </button>
+            </div>
+            <div class="results-section">
+    <div id="status" class="status-ready">Ready for new session.</div>
+
+    <div class="metrics">
+
+        <div class="metric-card green">
+            <div class="metric-header">
+                <span class="metric-label">Emotion</span>
+            </div>
+            <div id="predictionMessage" class="metric-value">-</div>
+        </div>
+
+    </div>
+</div>
+
+        </div>
+        
+    </div>
+
+    <script>
+        class TypingDataCollector {
+            constructor(textAreaElementId) {
+                this.textAreaElement = document.getElementById(textAreaElementId);
+                if (!this.textAreaElement) {
+                    console.error(`Element with ID '${textAreaElementId}' not found.`);
+                    return;
+                }
+                this.typingData = [];
+                this.isTypingDone = false;
+                this.userId = "user_" + Date.now();
+                this.targetText = "Once there was a cat and a mouse. Usually, cats eat mice and mice run away from cats. But this cat and this mouse liked each other very much. They liked each other so much that they lived together";
+                this.attachEventListeners();
+            }
+
+            attachEventListeners() {
+                this.textAreaElement.addEventListener('keydown', (event) => {
+                    if (!this.isTypingDone) this.handleKeyDown(event);
+                });
+                this.textAreaElement.addEventListener('keyup', (event) => {
+                    if (!this.isTypingDone) this.handleKeyUp(event);
+                });
+            }
+
+            handleKeyDown(event) {
+                const keyCode = String.fromCharCode(event.keyCode).toLowerCase();
+                const keyDown = Date.now();
+
+                // Push raw keydown event
+                this.typingData.push({
+                    userId: this.userId,
+                    emotionIndex: "N",
+                    index: "",
+                    keyCode: keyCode,
+                    keyDown: keyDown,
+                    keyUp: "",
+                    D1U1: "",
+                    D1U2: "",
+                    D1D2: "",
+                    U1D2: "",
+                    U1U2: "",
+                    D1U3: "",
+                    D1D3: "",
+                    answer: ""
+                });
+            }
+
+            handleKeyUp(event) {
+                const keyReleased = String.fromCharCode(event.keyCode).toLowerCase();
+                const keyUp = Date.now();
+                const len = this.typingData.length;
+
+                // Recherche inverse dans les 5 dernières touches
+                for (let i = 0; i < Math.min(5, len); i++) {
+                    const idx = len - 1 - i;
+                    if (this.typingData[idx].keyCode === keyReleased && !this.typingData[idx].keyUp) {
+                        this.typingData[idx].keyUp = keyUp;
+                        break;
+                    }
+                }
+            }
+
+            calculateFeatures() {
+                const result = [];
+                const len = this.typingData.length;
+
+                // Calcul des features pour chaque touche (sauf les deux dernières, gérées à part)
+                for (let i = 0; i < len - 2; i++) {
+                    const current = this.typingData[i];
+                    const next = this.typingData[i + 1];
+                    const nextNext = this.typingData[i + 2];
+
+                    // Vérifier que keyUp existe
+                    if (!current.keyUp || !next.keyUp || !next.keyDown || !nextNext.keyUp || !nextNext.keyDown) continue;
+
+                    current.D1U1 = current.keyUp - current.keyDown;
+                    current.D1U2 = next.keyUp - current.keyDown;
+                    current.D1D2 = next.keyDown - current.keyDown;
+                    current.U1D2 = next.keyDown - current.keyUp;
+                    current.U1U2 = next.keyUp - current.keyUp;
+                    current.D1U3 = nextNext.keyUp - current.keyDown;
+                    current.D1D3 = nextNext.keyDown - current.keyDown;
+
+                    result.push({ ...current });
+                }
+
+                // Gérer l'avant-dernière touche
+                if (len >= 2) {
+                    const secondLast = { ...this.typingData[len - 2] };
+                    const last = this.typingData[len - 1];
+
+                    if (secondLast.keyUp) {
+                        secondLast.D1U1 = secondLast.keyUp - secondLast.keyDown;
+                        if (last.keyUp) secondLast.D1U2 = last.keyUp - secondLast.keyDown;
+                        if (last.keyDown) {
+                            secondLast.D1D2 = last.keyDown - secondLast.keyDown;
+                            secondLast.U1D2 = last.keyDown - secondLast.keyUp;
+                            secondLast.U1U2 = last.keyUp - secondLast.keyUp;
+                        }
+                    }
+                    result.push(secondLast);
+                }
+
+                // Dernière touche
+                if (len >= 1) {
+                    const last = { ...this.typingData[len - 1] };
+                    if (last.keyUp) {
+                        last.D1U1 = last.keyUp - last.keyDown;
+                    }
+                    result.push(last);
+                }
+
+                return result;
+            }
+
+            arrayToCSV(dataArray) {
+                if (!dataArray || dataArray.length === 0) return "";
+                const headers = Object.keys(dataArray[0]);
+                const csvRows = dataArray.map(row =>
+                    headers.map(field => {
+                        let value = row[field];
+                        if (typeof value === "string" && (value.includes(',') || value.includes('"') || value.includes('\n'))) {
+                            value = `"${value.replace(/"/g, '""')}"`;
+                        }
+                        return value;
+                    }).join(',')
+                );
+                return [headers.join(','), ...csvRows].join('\n');
+            }
+
+            async uploadCSV(csvContent, filename) {
+                const uploadUrl = "http://127.0.0.1:8000/upload"; // Change si nécessaire
+                try {
+                    const response = await fetch(uploadUrl, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            filename: filename,
+                            content: csvContent
+                        }),
+                    });
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log("Upload successful:", result);
+                        document.getElementById('status').textContent = "Data saved successfully!";
+                        document.getElementById('status').className = "status-success";
+                        // Show prediction results
+                    document.getElementById('predictionMessage').textContent = result.message;
+                    } else {
+                        throw new Error(`Server error: ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error("Upload failed:", error);
+                    document.getElementById('status').textContent = "Failed to save data.";
+                    document.getElementById('status').className = "status-error";
+                }
+            }
+
+            finalizeAndSave() {
+                this.isTypingDone = true;
+                const features = this.calculateFeatures();
+                const csvContent = this.arrayToCSV(features);
+                const filename = `typing_data_${this.userId}_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.csv`;
+                this.uploadCSV(csvContent, filename);
+            }
+
+            reset() {
+                this.typingData = [];
+                this.isTypingDone = false;
+                this.textAreaElement.value = '';
+                document.getElementById('status').textContent = "Ready for new session.";
+                document.getElementById('status').className = "status-ready";
+            }
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            const collector = new TypingDataCollector('typingArea');
+            const saveButton = document.getElementById('saveButton');
+
+            if (saveButton) {
+                saveButton.addEventListener('click', () => {
+                    document.getElementById('status').textContent = "Processing and saving data...";
+                    document.getElementById('status').className = "status-processing";
+                    collector.finalizeAndSave();
+                });
+            } else {
+                console.error("Save button with ID 'saveButton' not found.");
+            }
+        });
+    </script>
+</body>
+</html>
